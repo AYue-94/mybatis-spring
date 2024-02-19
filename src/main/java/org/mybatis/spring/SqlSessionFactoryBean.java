@@ -594,6 +594,7 @@ public class SqlSessionFactoryBean
     }
 
     targetConfiguration.setEnvironment(new Environment(this.environment,
+        // 默认使用SpringManagedTransactionFactory，由spring管理事务
         this.transactionFactory == null ? new SpringManagedTransactionFactory() : this.transactionFactory,
         this.dataSource));
 
@@ -601,6 +602,7 @@ public class SqlSessionFactoryBean
       if (this.mapperLocations.length == 0) {
         LOGGER.warn(() -> "Property 'mapperLocations' was specified but matching resources are not found.");
       } else {
+        // Mapper.xml扫描
         for (Resource mapperLocation : this.mapperLocations) {
           if (mapperLocation == null) {
             continue;

@@ -94,16 +94,23 @@ public final class SqlSessionUtils {
     notNull(sessionFactory, NO_SQL_SESSION_FACTORY_SPECIFIED);
     notNull(executorType, NO_EXECUTOR_TYPE_SPECIFIED);
 
+    // spring-tx 通过 TransactionSynchronizationManager 获取 SqlSessionFactory 对应 SqlSessionHolder
     SqlSessionHolder holder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sessionFactory);
 
+    // 从 SqlSessionHolder 获取 SqlSession
     SqlSession session = sessionHolder(executorType, holder);
+
+    // 如果SqlSession拿到，直接返回
     if (session != null) {
       return session;
     }
 
     LOGGER.debug(() -> "Creating a new SqlSession");
+
+    // 如果SqlSession没拿到，创建新SqlSession
     session = sessionFactory.openSession(executorType);
 
+    // spring-tx 通过 TransactionSynchronizationManager 注册 SqlSessionFactory 对应 SqlSessionHolder
     registerSessionHolder(sessionFactory, executorType, exceptionTranslator, session);
 
     return session;

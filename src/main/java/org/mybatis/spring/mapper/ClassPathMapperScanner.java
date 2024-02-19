@@ -201,12 +201,14 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
    */
   @Override
   public Set<BeanDefinitionHolder> doScan(String... basePackages) {
+    // 注册beanDefinition
     Set<BeanDefinitionHolder> beanDefinitions = super.doScan(basePackages);
 
     if (beanDefinitions.isEmpty()) {
       LOGGER.warn(() -> "No MyBatis mapper was found in '" + Arrays.toString(basePackages)
           + "' package. Please check your configuration.");
     } else {
+      // 二次处理BeanDefinition
       processBeanDefinitions(beanDefinitions);
     }
 
@@ -233,7 +235,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
       // the mapper interface is the original class of the bean
       // but, the actual class of the bean is MapperFactoryBean
       definition.getConstructorArgumentValues().addGenericArgumentValue(beanClassName); // issue #59
-      definition.setBeanClass(this.mapperFactoryBeanClass);
+      definition.setBeanClass(this.mapperFactoryBeanClass); // 替换BeanClass，从用户Mapper变为MapperFactoryBean
 
       definition.getPropertyValues().add("addToConfig", this.addToConfig);
 
@@ -270,6 +272,7 @@ public class ClassPathMapperScanner extends ClassPathBeanDefinitionScanner {
 
       if (!explicitFactoryUsed) {
         LOGGER.debug(() -> "Enabling autowire by type for MapperFactoryBean with name '" + holder.getBeanName() + "'.");
+        // 如果MapperScan未指定sqlSessionFactory，则按照type自动注入
         definition.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
       }
 
